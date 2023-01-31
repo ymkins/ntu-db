@@ -1,0 +1,1 @@
+SELECT memcache_add('/1', 'hello')

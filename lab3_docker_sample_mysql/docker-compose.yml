@@ -1,0 +1,38 @@
+version: '3.8'
+
+# this docker file is based on this tutorial:
+# https://www.dabbleofdevops.com/blog/setup-a-postgres-python-docker-dev-stack
+
+services:
+
+  python_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql_db
+    command:
+      tail -f /dev/null
+
+  mysql_db:
+    #container_name: mysql_db
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: MYSQL_DATABASE
+      MYSQL_USER: MYSQL_USER
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+    ports:
+      - "9906:3306"
+            
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8080:80'
+    restart: always
+    environment:
+      PMA_HOST: mysql_db
+    depends_on:
+      - mysql_db
+
