@@ -3,7 +3,7 @@
 # the main problem with execution of this script under git-bash on windows
 # is that git-bash uses paths styled like /d/path/to/file but docker
 # expects windows-style paths like d:/path/to/file; the back slashes
-# are not nessesary but the drive letter should be followed by : (not /)
+# are not nessesary but the drive letter should be the first and followed by : (not /)
  
 function convert_path {
   local path=$1
