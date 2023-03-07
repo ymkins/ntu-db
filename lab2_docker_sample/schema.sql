@@ -1,3 +1,14 @@
+DROP DATABASE IF EXISTS lab2;
+
+CREATE ROLE testuser LOGIN;
+
+--For linux
+CREATE DATABASE lab2 ENCODING 'UTF-8' LC_COLLATE 'en_US.UTF-8' LC_CTYPE 'en_US.UTF-8' TEMPLATE template0 OWNER testuser;
+
+\c lab2
+
+SET ROLE testuser;
+
 CREATE TABLE artists (
     -- More about identity column:
     -- https://www.2ndquadrant.com/en/blog/postgresql-10-identity-columns/
