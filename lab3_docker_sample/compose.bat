@@ -1,2 +1,2 @@
 docker-compose stop
-docker-compose up -d --build
+docker-compose -p lab3 up -d --build

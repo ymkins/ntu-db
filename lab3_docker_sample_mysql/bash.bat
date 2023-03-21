@@ -1,1 +1,1 @@
-docker exec -it %1 /bin/bash
+docker exec -it lab3-app /bin/bash

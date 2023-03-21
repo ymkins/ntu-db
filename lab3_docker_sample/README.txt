@@ -6,9 +6,8 @@ To develop the app you can run it natively using IDE, for example PyCharm
 
 To deploy it to the teacher it should be runnable under Docker:
    - run compose.bat to build and run the container
-   - than run docker ps and find the SHA for the container with your python app
    - now you can connect to the containers tty with the following comand:
-        docker exec -it 589c3ec6cb6c /bin/bash
+        docker exec -it lab3-app /bin/bash (or simply use bash.bat)
      and try to run the py-script using:
         python cli.py
    - the list of awailable options will be displayed, try them all:

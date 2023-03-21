@@ -17,6 +17,7 @@ services:
       - ./postgres:/docker-entrypoint-initdb.d
 
   python_app:
+    container_name: lab3-app
     build:
       context: .
       dockerfile: Dockerfile
