@@ -1,0 +1,12 @@
+open two terminal windows in linux
+
+in the first one - run ./_create.sh;
+   this will create and run the docker-container with postgresql and all *.sql files from the folder
+
+in the second one run ./_psql.sh
+   this will open the container's psql shell
+
+and now you can execute any sql statements or metacommands
+or execute .sql files; to execute .sql file use the following command:
+   \i /repo/some_file_name.sql
+
