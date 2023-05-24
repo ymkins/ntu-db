@@ -1,0 +1,65 @@
+version: "3.7"
+
+volumes:
+  pgadmin:
+  pgdata:
+
+
+services:
+
+  pg:
+    image: postgres:14.5-alpine3.16
+    environment:
+      PGDATA: "/pgdata"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - pgdata:/pgdata
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    restart: unless-stopped
+
+  pga:
+    image: "dpage/pgadmin4:7.1"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@localhost.localdomain
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+      - ./docker_pgadmin_servers.json:/pgadmin4/servers.json
+    ports:
+      - "18081:80"
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      [
+        "echo 'pg:5432:*:postgres:postgres' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && exec /entrypoint.sh"
+      ]
+    restart: unless-stopped
+
+x-examples:
+
+  pg:
+    container_name: labpg
+    image: postgres:14.5-alpine3.16
+    stop_grace_period: 2m
+    # vacuumdb utility can require additional shared memory
+    shm_size: '256mb'
+    ports:
+      - "5432:5432" # PostgreSQL
+    command: postgres -c 'shared_buffers=768MB' -c 'effective_cache_size=2GB'
+    environment:
+      - LANG=en_US.UTF-8
+      - PGDATABASE=labdb
+      - POSTGRES_DB=labdb
+      - POSTGRES_PASSWORD=postgres
+    # healthcheck:
+    #   test: psql --dbname labdb --user lab -c "SELECT 1;"
+    #   interval: 30s
+    #   timeout: 3s
+    #   retries: 3
+    #   start_period: 20s
+    # user: postgres
+    # volumes:
+    #   - ./pgdata1:/var/lib/postgresql/data
