@@ -1,13 +1,22 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { RoomAreas } from './RoomAreas';
 import { StaffIds } from './StaffIds';
 
 @Entity('areas_staff_history', { schema: 'public' })
 export class AreasStaffHistory {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column('date', { name: 'logged', nullable: true })
   logged: string | null;
 
-  @Column('text', { name: 'notes', nullable: true })
+  @Column('simple-json', { name: 'notes', nullable: true })
   notes: string | null;
 
   @ManyToOne(() => RoomAreas, (roomAreas) => roomAreas.areasStaffHistories, {

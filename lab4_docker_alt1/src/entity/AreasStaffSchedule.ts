@@ -1,9 +1,18 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { RoomAreas } from './RoomAreas';
 import { StaffIds } from './StaffIds';
 
 @Entity('areas_staff_schedule', { schema: 'public' })
 export class AreasStaffSchedule {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column('integer', { name: 'dayofweek', nullable: true })
   dayofweek: number | null;
 

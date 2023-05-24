@@ -34,7 +34,7 @@ export class Rooms {
   @Column('date', { name: 'archived', nullable: true })
   archived: string | null;
 
-  @Column('text', { name: 'notes', nullable: true })
+  @Column('simple-json', { name: 'notes', nullable: true })
   notes: string | null;
 
   @ManyToOne(() => RoomAreas, (roomAreas) => roomAreas.rooms, {

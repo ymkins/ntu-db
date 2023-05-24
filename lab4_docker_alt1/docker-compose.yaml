@@ -18,6 +18,11 @@ services:
       ]
     ports:
       - "18080:3000"
+    environment:
+      DB_DB: labdb
+      DB_USER: lauser
+      DB_PASS: lapass
+      LOG_LEVEL: 3
 
   pg:
     image: postgres:14.5-alpine3.16
@@ -29,6 +34,7 @@ services:
       - pgdata:/pgdata
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     restart: unless-stopped
+    command: ["postgres", "-c", "log_statement=all"]
 
   pga:
     image: "dpage/pgadmin4:7.1"

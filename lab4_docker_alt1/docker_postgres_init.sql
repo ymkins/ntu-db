@@ -31,11 +31,15 @@ CREATE TABLE room_areas (
     room_area varchar(64)
 );
 
+ALTER TABLE public.room_areas OWNER TO lauser;
+
 CREATE TABLE room_types (
     room_type_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     room_type varchar(64),
     room_capacity INTEGER
 );
+
+ALTER TABLE public.room_types OWNER TO lauser;
 
 CREATE TABLE rooms (
     room_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -48,13 +52,17 @@ CREATE TABLE rooms (
     notes TEXT
 );
 
+ALTER TABLE public.rooms OWNER TO lauser;
 
 CREATE TABLE guest_ids (
     guest_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created DATE
 );
 
+ALTER TABLE public.guest_ids OWNER TO lauser;
+
 CREATE TABLE guest_data (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     guest_id INTEGER REFERENCES guest_ids(guest_id) ON DELETE CASCADE,
     idcode TEXT,
     archived DATE,
@@ -65,8 +73,10 @@ CREATE TABLE guest_data (
     notes TEXT
 );
 
+ALTER TABLE public.guest_data OWNER TO lauser;
 
 CREATE TABLE rooms_guests (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     room_id INTEGER REFERENCES rooms(room_id) ON DELETE CASCADE,
     guest_id INTEGER REFERENCES guest_ids(guest_id) ON DELETE CASCADE,
     check_in DATE,
@@ -75,13 +85,17 @@ CREATE TABLE rooms_guests (
     notes TEXT
 );
 
+ALTER TABLE public.rooms_guests OWNER TO lauser;
 
 CREATE TABLE staff_ids (
     staff_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created DATE
 );
 
+ALTER TABLE public.staff_ids OWNER TO lauser;
+
 CREATE TABLE staff_data (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     staff_id INTEGER REFERENCES staff_ids(staff_id) ON DELETE CASCADE,
     archived DATE,
     -- json arrays
@@ -90,20 +104,28 @@ CREATE TABLE staff_data (
     notes TEXT
 );
 
+ALTER TABLE public.staff_data OWNER TO lauser;
+
 CREATE TABLE areas_staff_schedule (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     dayofweek INTEGER,
     room_area_id INTEGER REFERENCES room_areas(room_area_id) ON DELETE CASCADE,
     staff_id INTEGER REFERENCES staff_ids(staff_id) ON DELETE CASCADE,
     archived DATE
 );
 
+ALTER TABLE public.areas_staff_schedule OWNER TO lauser;
+
 CREATE TABLE areas_staff_history (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     logged DATE,
     room_area_id INTEGER REFERENCES room_areas(room_area_id) ON DELETE CASCADE,
     staff_id INTEGER REFERENCES staff_ids(staff_id) ON DELETE CASCADE,
     -- json arrays
     notes TEXT
 );
+
+ALTER TABLE public.areas_staff_history OWNER TO lauser;
 
 --
 
@@ -183,22 +205,24 @@ DROP TABLE temp_areas_staff_history;
 
 --
 
--- про те, хто із службовців прибирав номер у заданий день
-SELECT *
-	FROM public.rooms as rr
-	LEFT JOIN public.areas_staff_history as st_hst ON rr.room_area_id = st_hst.room_area_id
-	LEFT JOIN public.staff_data as st ON st_hst.staff_id = st.staff_id
-	WHERE room_code = '2-2' AND logged = '2001-01-11'
-;
-
 -- про клієнтів, які проживають у заданому номері
 SELECT *
 	FROM public.rooms_guests as rr_gst
 	LEFT JOIN public.rooms as rr ON rr.room_id = rr_gst.room_id
 	LEFT JOIN public.guest_data as gst ON gst.guest_id = rr_gst.guest_id
-	WHERE room_code = '1-3' 
-	AND check_in <= CURRENT_DATE
-	AND check_out >= CURRENT_DATE
+	WHERE rr.room_code = '1-3' 
+	AND rr_gst.check_in <= CURRENT_DATE
+	AND rr_gst.check_out >= CURRENT_DATE
+;
+
+-- про клієнтів, які проживають у заданому номері (ORM)
+SELECT *
+	FROM public.guest_data as gst
+	LEFT JOIN public.rooms_guests as rr_gst ON rr_gst.guest_id = gst.guest_id
+	LEFT JOIN public.rooms as rr ON rr.room_id = rr_gst.room_id
+	WHERE rr.room_code = '1-3' 
+	AND rr_gst.check_in <= CURRENT_DATE
+	AND rr_gst.check_out >= CURRENT_DATE
 ;
 
 -- про клієнтів, які прибули із заданого міста
@@ -206,9 +230,36 @@ SELECT *
 	FROM public.rooms_guests as rr_gst
 	LEFT JOIN public.rooms as rr ON rr.room_id = rr_gst.room_id
 	LEFT JOIN public.guest_data as gst ON gst.guest_id = rr_gst.guest_id
-	WHERE addresses LIKE '%Kharkiv%'
-	AND check_in <= CURRENT_DATE
-	AND check_out >= CURRENT_DATE
+	WHERE gst.addresses LIKE '%Kharkiv%'
+	AND rr_gst.check_in <= CURRENT_DATE
+	AND rr_gst.check_out >= CURRENT_DATE
+;
+
+-- про клієнтів, які прибули із заданого міста (ORM)
+SELECT *
+	FROM public.guest_data as gst
+	LEFT JOIN public.rooms_guests as rr_gst ON rr_gst.guest_id = gst.guest_id
+	LEFT JOIN public.rooms as rr ON rr.room_id = rr_gst.room_id
+	WHERE gst.addresses LIKE '%Kharkiv%'
+	AND rr_gst.check_in <= CURRENT_DATE
+	AND rr_gst.check_out >= CURRENT_DATE
+;
+
+-- про те, хто із службовців прибирав номер у заданий день
+SELECT *
+	FROM public.rooms as rr
+	LEFT JOIN public.areas_staff_history as st_hst ON st_hst.room_area_id = rr.room_area_id
+	LEFT JOIN public.staff_data as st ON st.staff_id = st_hst.staff_id
+	WHERE rr.room_code = '2-2' AND st_hst.logged = '2001-01-11'
+;
+
+-- про те, хто із службовців прибирав номер у заданий день (ORM)
+SELECT *
+	FROM public.staff_data as st
+	INNER JOIN public.areas_staff_history as st_hst
+		ON st_hst.logged = '2001-01-11' AND st_hst.staff_id = st.staff_id
+	LEFT JOIN public.rooms as rr ON rr.room_area_id = st_hst.room_area_id
+	WHERE rr.room_code = '2-2'
 ;
 
 -- про те, хто із службовців прибирав номер вказаного клієнта у заданий день

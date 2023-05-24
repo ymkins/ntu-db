@@ -1,16 +1,25 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { GuestIds } from './GuestIds';
 import { Rooms } from './Rooms';
 
 @Entity('rooms_guests', { schema: 'public' })
 export class RoomsGuests {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column('date', { name: 'check_in', nullable: true })
   checkIn: string | null;
 
   @Column('date', { name: 'check_out', nullable: true })
   checkOut: string | null;
 
-  @Column('text', { name: 'notes', nullable: true })
+  @Column('simple-json', { name: 'notes', nullable: true })
   notes: string | null;
 
   @ManyToOne(() => GuestIds, (guestIds) => guestIds.roomsGuests, {
