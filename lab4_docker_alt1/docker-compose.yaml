@@ -7,6 +7,18 @@ volumes:
 
 services:
 
+  app:
+    image: node:20-alpine3.16
+    volumes:
+      - ./:/app
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      [
+        "npm --prefix /app ci && exec npm --prefix /app run start"
+      ]
+    ports:
+      - "18080:3000"
+
   pg:
     image: postgres:14.5-alpine3.16
     environment:
